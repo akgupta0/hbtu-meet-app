@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HBTU West Alumni — Mumbai Meet 2026 Registration</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#f0ece3;}
+  iframe{
+    display:block;
+    width:100%;
+    height:100vh;
+    border:none;
+  }
+</style>
+</head>
+<body>
+<!-- ============================================================
+     HBTU West Alumni Meet 2026 — Registration Wrapper
+     Embeds the Apps Script web app to suppress Google's
+     "This application was created by a Google Apps Script user"
+     banner which only appears on the direct /exec URL.
+
+     HOW TO UPDATE:
+       • After running ./release.sh the script auto-patches APP_URL below.
+       • Or edit APP_URL manually with the new deployment /exec URL.
+     ============================================================ -->
+<script>
+  /* ── DEPLOYMENT URL — updated by release.sh after each deploy ── */
+  var APP_URL = "https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec";
+
+  /* ── Fallback: pass ?src=<url> in the wrapper URL to override ── */
+  var params = new URLSearchParams(window.location.search);
+  var src = params.get("src") || APP_URL;
+
+  /* ── Forward page= param (e.g. ?page=badges) to the app ── */
+  var page = params.get("page");
+  if (page) src += (src.indexOf("?") >= 0 ? "&" : "?") + "page=" + encodeURIComponent(page);
+
+  /* ── Write iframe ── */
+  document.write('<iframe src="' + src + '" title="HBTU Alumni Meet 2026 Registration" allowfullscreen></iframe>');
+</script>
+<noscript>
+  <p style="font-family:sans-serif;padding:20px;">
+    JavaScript is required. Please enable it or
+    <a href="https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec">open the registration form directly</a>.
+  </p>
+</noscript>
+</body>
+</html>
