@@ -6,46 +6,89 @@
 <title>HBTU West Alumni — Mumbai Meet 2026 Registration</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{width:100%;height:100%;overflow:hidden;background:#f0ece3;}
-  iframe{
-    display:block;
-    width:100%;
-    height:100vh;
-    border:none;
+  html,body{width:100%;height:100%;background:#f0ece3;}
+  #loading{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:100vh;font-family:sans-serif;color:#7a5c3a;gap:14px;
   }
+  .spinner{
+    width:38px;height:38px;border:4px solid #d6c4a8;
+    border-top-color:#7a5c3a;border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  iframe{display:none;width:100%;height:100vh;border:none;}
 </style>
 </head>
 <body>
 <!-- ============================================================
      HBTU West Alumni Meet 2026 — Registration Wrapper
-     Embeds the Apps Script web app to suppress Google's
-     "This application was created by a Google Apps Script user"
-     banner which only appears on the direct /exec URL.
+     • Desktop: embeds app in iframe (hides Google banner)
+     • Mobile / incognito / iframe-blocked: redirects directly
 
      HOW TO UPDATE:
        • After running ./release.sh the script auto-patches APP_URL below.
        • Or edit APP_URL manually with the new deployment /exec URL.
      ============================================================ -->
+
+<div id="loading">
+  <div class="spinner"></div>
+  <span>Loading registration…</span>
+</div>
+<iframe id="appFrame" title="HBTU Alumni Meet 2026 Registration" allowfullscreen></iframe>
+
 <script>
   /* ── DEPLOYMENT URL — updated by release.sh after each deploy ── */
   var APP_URL = "https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec";
 
-  /* ── Fallback: pass ?src=<url> in the wrapper URL to override ── */
+  /* ── Build final URL (forward ?page= param) ── */
   var params = new URLSearchParams(window.location.search);
-  var src = params.get("src") || APP_URL;
+  var page   = params.get("page");
+  var finalURL = APP_URL;
+  if (page) finalURL += (finalURL.indexOf("?") >= 0 ? "&" : "?") + "page=" + encodeURIComponent(page);
 
-  /* ── Forward page= param (e.g. ?page=badges) to the app ── */
-  var page = params.get("page");
-  if (page) src += (src.indexOf("?") >= 0 ? "&" : "?") + "page=" + encodeURIComponent(page);
+  /* ── Detect mobile or private-mode iframe restriction ── */
+  function isMobile() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
 
-  /* ── Write iframe ── */
-  document.write('<iframe src="' + src + '" title="HBTU Alumni Meet 2026 Registration" allowfullscreen></iframe>');
+  function isIframeBlocked() {
+    // Safari private mode and some Android browsers block cross-origin iframes
+    // Heuristic: if storage is blocked (common in private mode), redirect instead
+    try {
+      window.localStorage.setItem("_t","1");
+      window.localStorage.removeItem("_t");
+      return false;
+    } catch(e) {
+      return true;
+    }
+  }
+
+  if (isMobile() || isIframeBlocked()) {
+    /* Mobile or incognito — redirect directly (cleanest experience) */
+    window.location.replace(finalURL);
+  } else {
+    /* Desktop — embed in iframe to suppress Google banner */
+    var frame = document.getElementById("appFrame");
+    frame.src = finalURL;
+
+    /* Show iframe once loaded, hide spinner */
+    frame.addEventListener("load", function() {
+      document.getElementById("loading").style.display = "none";
+      frame.style.display = "block";
+    });
+
+    /* Safety fallback: if iframe takes >8s, redirect instead */
+    setTimeout(function() {
+      if (frame.style.display !== "block") {
+        window.location.replace(finalURL);
+      }
+    }, 8000);
+  }
 </script>
+
 <noscript>
-  <p style="font-family:sans-serif;padding:20px;">
-    JavaScript is required. Please enable it or
-    <a href="https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec">open the registration form directly</a>.
-  </p>
+  <meta http-equiv="refresh" content="0;url=https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec"/>
 </noscript>
 </body>
 </html>
