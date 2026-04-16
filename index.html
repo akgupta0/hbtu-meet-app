@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<!-- ── INSTANT REDIRECT (mobile / incognito) — runs before anything else ── -->
+<script>
+  var APP_URL = "https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec";
+  var page = new URLSearchParams(window.location.search).get("page");
+  var finalURL = APP_URL + (page ? (APP_URL.indexOf("?")>=0?"&":"?")+"page="+encodeURIComponent(page) : "");
+  var mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var blocked = (function(){ try{ localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return false; }catch(e){ return true; } })();
+  if (mobile || blocked) { window.location.replace(finalURL); }
+</script>
+<!-- ── Everything below only reached by desktop non-incognito browsers ── -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>HBTU West Alumni — Mumbai Meet 2026 Registration</title>
 <style>
@@ -23,70 +33,28 @@
 <body>
 <!-- ============================================================
      HBTU West Alumni Meet 2026 — Registration Wrapper
-     • Desktop: embeds app in iframe (hides Google banner)
-     • Mobile / incognito / iframe-blocked: redirects directly
-
-     HOW TO UPDATE:
-       • After running ./release.sh the script auto-patches APP_URL below.
-       • Or edit APP_URL manually with the new deployment /exec URL.
+     • Mobile / incognito : instant redirect (top of <head>)
+     • Desktop normal     : iframe to suppress Google banner
+     HOW TO UPDATE: release.sh auto-patches APP_URL above.
      ============================================================ -->
-
 <div id="loading">
   <div class="spinner"></div>
   <span>Loading registration…</span>
 </div>
 <iframe id="appFrame" title="HBTU Alumni Meet 2026 Registration" allowfullscreen></iframe>
-
 <script>
-  /* ── DEPLOYMENT URL — updated by release.sh after each deploy ── */
-  var APP_URL = "https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec";
-
-  /* ── Build final URL (forward ?page= param) ── */
-  var params = new URLSearchParams(window.location.search);
-  var page   = params.get("page");
-  var finalURL = APP_URL;
-  if (page) finalURL += (finalURL.indexOf("?") >= 0 ? "&" : "?") + "page=" + encodeURIComponent(page);
-
-  /* ── Detect mobile or private-mode iframe restriction ── */
-  function isMobile() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-
-  function isIframeBlocked() {
-    // Safari private mode and some Android browsers block cross-origin iframes
-    // Heuristic: if storage is blocked (common in private mode), redirect instead
-    try {
-      window.localStorage.setItem("_t","1");
-      window.localStorage.removeItem("_t");
-      return false;
-    } catch(e) {
-      return true;
-    }
-  }
-
-  if (isMobile() || isIframeBlocked()) {
-    /* Mobile or incognito — redirect directly (cleanest experience) */
-    window.location.replace(finalURL);
-  } else {
-    /* Desktop — embed in iframe to suppress Google banner */
-    var frame = document.getElementById("appFrame");
-    frame.src = finalURL;
-
-    /* Show iframe once loaded, hide spinner */
-    frame.addEventListener("load", function() {
-      document.getElementById("loading").style.display = "none";
-      frame.style.display = "block";
-    });
-
-    /* Safety fallback: if iframe takes >8s, redirect instead */
-    setTimeout(function() {
-      if (frame.style.display !== "block") {
-        window.location.replace(finalURL);
-      }
-    }, 8000);
-  }
+  /* Desktop iframe path */
+  var frame = document.getElementById("appFrame");
+  frame.src = finalURL;
+  frame.addEventListener("load", function() {
+    document.getElementById("loading").style.display = "none";
+    frame.style.display = "block";
+  });
+  /* Safety fallback: redirect if iframe stalls >8s */
+  setTimeout(function() {
+    if (frame.style.display !== "block") window.location.replace(finalURL);
+  }, 8000);
 </script>
-
 <noscript>
   <meta http-equiv="refresh" content="0;url=https://script.google.com/macros/s/AKfycby3X-qmCytutULlxvMaqwRU2nGXXHcNEq4cVK4stHcnD1C53T6_djwfcxqDmTXjGI6asg/exec"/>
 </noscript>
