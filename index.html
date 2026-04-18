@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <!-- ── INSTANT REDIRECT (mobile / incognito) — runs before anything else ── -->
 <script>
-  var APP_URL = "https://script.google.com/macros/s/AKfycbyfCJsem_Yqc0Et2R_ytkHuAbQf9AhVQh_pDR2-cp5CsKsbwa80sTNAAw09mc6hF_yo0A/exec";
+  var APP_URL = "https://script.google.com/macros/s/AKfycbxqAXVgz55l6lswj6xZQtEcje_myhjjpPtBNsoAkXL3MRlRcu30JK7NQqV2U0mOUI3I6w/exec";
   var page = new URLSearchParams(window.location.search).get("page");
   var finalURL = APP_URL + (page ? (APP_URL.indexOf("?")>=0?"&":"?")+"page="+encodeURIComponent(page) : "");
   var mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
