@@ -2,11 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<!-- ── Pass 32: no-cache meta tags on the wrapper itself.
+     GitHub Pages CDN caches wrapper.html for ~10 min by default; these
+     meta tags persuade the browser to revalidate on every visit so a new
+     APP_URL (patched by release.sh after clasp push) is picked up quickly
+     instead of serving a user a stale wrapper that points at the prior
+     deployment. Combined with _t= cache-bust below and no-cache tags in
+     Index.html, this kills every cache layer between user and server. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <!-- ── INSTANT REDIRECT (mobile / incognito) — runs before anything else ── -->
 <script>
-  var APP_URL = "https://script.google.com/macros/s/AKfycbxqAXVgz55l6lswj6xZQtEcje_myhjjpPtBNsoAkXL3MRlRcu30JK7NQqV2U0mOUI3I6w/exec";
+  var APP_URL = "https://script.google.com/macros/s/AKfycbxuYUDXT8c4BqaiGHqEIdZW1TLz46SvAD4ximRBdclcm7mhQxGYsxj0NdyuWxxqjDni9Q/exec";
+  // ── Pass 32: cache-bust ── Append a unique `_t=` timestamp on every
+  // redirect so the browser / any intermediate CDN cannot serve a cached
+  // `/exec` response from a previous session. Apps Script ignores unknown
+  // query params, so this is a safe no-op server-side. Each page load gets
+  // a unique URL → guaranteed fresh fetch of the latest HtmlService output.
+  var cacheBust = "_t=" + Date.now();
   var page = new URLSearchParams(window.location.search).get("page");
-  var finalURL = APP_URL + (page ? (APP_URL.indexOf("?")>=0?"&":"?")+"page="+encodeURIComponent(page) : "");
+  var qs = cacheBust + (page ? "&page=" + encodeURIComponent(page) : "");
+  var finalURL = APP_URL + (APP_URL.indexOf("?") >= 0 ? "&" : "?") + qs;
   var mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   var blocked = (function(){ try{ localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return false; }catch(e){ return true; } })();
   if (mobile || blocked) { window.location.replace(finalURL); }
